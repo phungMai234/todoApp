@@ -1,4 +1,4 @@
-import React from 'react';
+import React , {useState} from 'react';
 import {Text, View, TextInput, Button, FlatList, Modal, StyleSheet} from 'react-native';
 
 const data = [
@@ -15,74 +15,63 @@ const data = [
     task: 'clean house'
   }
 ];
-export default class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      list: data,
-      task: "",
-      modalVisible: false,
-      valueEdit:"",
-      idEdit:""
-    }
-    this.deleteItem = this.deleteItem.bind(this);
-    this.editItem = this.editItem.bind(this);
-    this.toggleModalEdit = this.toggleModalEdit.bind(this);
-  }
+export default function App() {
+  const [list, setList] = useState(data);
+  const [task, setTask] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [valueEdit, setValueEdit] = useState("");
+  const [idEdit, setIdEdit] = useState("");
 
-  deleteItem = (id) => {
-    let newList = this.state.list;
+  const deleteItem = (id) => {
+    let newList = list;
     let itemDel = newList.findIndex(e => e.id === id);
     newList.splice(itemDel, 1);
-    this.setState({list: newList});
+    setList(newList);
   };
-  toggleModalEdit = (id) => {
-    let newList = this.state.list;
+  const toggleModalEdit = (id) => {
+    let newList = list;
     let itemEdit = newList.find(e => e.id === id);
-    this.setState({
-      valueEdit: itemEdit.task,
-      idEdit: itemEdit.id,
-      modalVisible: true
-    })
+
+    setValueEdit(itemEdit.task);
+    setIdEdit(itemEdit.id);
+    setModalVisible(true);
+
   }
-  editItem = () =>{
-    const {idEdit, valueEdit} = this.state;
-    let newList = this.state.list;
+  const editItem = () =>{
+    let newList = list;
     let itemDel = newList.findIndex(e => e.id === idEdit);
     let editItem = {
       id: idEdit,
       task: valueEdit
     };
     newList.splice(itemDel, 1, editItem);
-    this.setState({
-      list: newList,
-      modalVisible: false
-    })
+    setList(newList);
+    setModalVisible(false);
+
   }
-  render() {
     return (
       <View>
         <View style={styles.centeredView}>
           <Modal animationType="slide"
                  transparent={true}
-                 visible={this.state.modalVisible}>
+                 visible={modalVisible}>
             <View style={styles.centeredView}>
               <View style={styles.modalView}>
                 <TextInput
                   style={{height: 40, borderColor: 'gray', borderWidth: 1, width: 200}}
-                  value={this.state.valueEdit}
-                  onChangeText={(task) => this.setState({valueEdit: task})}
+                  value={valueEdit}
+                  onChangeText={(task) => setValueEdit(task)}
                 />
                 <Button
                   title="Edit"
                   onPress={()=>
                   {
-                    this.editItem()
+                    editItem()
                   }}
                 />
                 <Button
                   title="Cancel"
-                  onPress={() => this.setState({modalVisible:false})}
+                  onPress={() => setModalVisible(false)}
                 />
               </View>
             </View>
@@ -94,29 +83,29 @@ export default class App extends React.Component {
         <View>
           <TextInput
             style={{height: 40, borderColor: 'gray', borderWidth: 1}}
-            onChangeText={task => this.setState({task: task})}
-            value={this.state.task}
+            onChangeText={task => setTask(task)}
+            value={task}
             placeholder="Typing task"
           />
           <Button
             title="Add"
             onPress={() => {
-              let newList = this.state.list;
-              let l = newList.concat({id: Math.random().toString(), task: this.state.task});
-              this.setState({list: l})
-              this.setState({task: ""})
+              let newList = list;
+              let l = newList.concat({id: Math.random().toString(), task:task});
+              setList(l);
+              setTask("")
               }
             }
           />
         </View>
         <View>
           <FlatList
-            data={this.state.list}
+            data={list}
             renderItem={({item}) => (
               <View>
                 <Text key={item.id}>{item.task}</Text>
-                <Button title="Del" onPress={() => this.deleteItem(item.id)}/>
-                <Button title="Edit" onPress={() => this.toggleModalEdit(item.id)}/>
+                <Button title="Del" onPress={() => deleteItem(item.id)}/>
+                <Button title="Edit" onPress={() => toggleModalEdit(item.id)}/>
               </View>
 
             )}
@@ -124,7 +113,6 @@ export default class App extends React.Component {
         </View>
       </View>
     );
-  }
 
 
 }
